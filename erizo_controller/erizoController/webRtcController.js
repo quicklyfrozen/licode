@@ -89,18 +89,20 @@ exports.WebRtcController = function () {
 
         var reg1 = new RegExp(/\n/g),
             offererSessionId = offerRoap.match(/("offererSessionId":)(.+?)(,)/)[0],
-            answererSessionId = "106",
-            answer = ('\n{\n \"messageType\":\"ANSWER\",\n');
+            //13b65aebf17c47ce4c1f5fc4ccd
+            answererSessionId = "13b65aebf17c47ce4c1f5fc4ccd",
+            answer = ('{\"messageType\":\"ANSWER\",');
 
-        sdp = sdp.replace(reg1, '\\r\\n');
+            answer += offererSessionId + '';
+
+          sdp = sdp.replace(reg1, '\\r\\n');
 
         //var reg2 = new RegExp(/^.*offererSessionId\":(...).*$/);
         //var offererSessionId = offerRoap.match(reg2)[1];
 
-        answer += ' \"sdp\":\"' + sdp + '\",\n';
+        answer += '\"sdp\":\"' + sdp + '\",';
         //answer += ' \"offererSessionId\":' + offererSessionId + ',\n';
-        answer += ' ' + offererSessionId + '\n';
-        answer += ' \"answererSessionId\":' + answererSessionId + ',\n \"seq\" : 1\n}\n';
+        answer += '\"seq\":1,' + '\"answererSessionId\":\"' + answererSessionId + '\"}';
 
         return answer;
     };

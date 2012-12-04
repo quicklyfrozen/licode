@@ -126,31 +126,28 @@ function createPeerConnection() {
 
     pc = new ErizoPeerConnection(function(offer, ant){
 
-      //socket.emit('sdp', ant);
+      socket.emit('sdp', offer);
 
-      console.log('++++++++++++++SIGNALING++++++++++++++');
+      console.log('++++++++++++++signaling++++++++++++++');
 
       socket.emit('publish', 'offer', offer, function (answer) {
+          console.log('tengo answer');
           pc.onsignalingmessage = function (ok) {
               console.log('envio ok');
               pc.onsignalingmessage = function() {};
               socket.emit('publish', 'ok', ok);
           };
     
-          var newAnswer = answer;
-
+          var newAnswer = JSON.parse(answer);
+          console.log('1');
           if(!pc.peerConnection) {
             console.log('SOY BOWSER voy a hacer nuevo answer');
             newAnswer = ErizoParseAnswer(answer);
             console.log('ya tengo nuevo answer');
 
             var par = JSON.parse(newAnswer.substring(4));
-
-            socket.emit('sdp', par.seq);
-
-            //socket.emit('sdp', newAnswer);
+            socket.emit('sdp', newAnswer);
           }
-
           pc.processSignalingMessage(newAnswer);
           console.log('espero ok');
       });

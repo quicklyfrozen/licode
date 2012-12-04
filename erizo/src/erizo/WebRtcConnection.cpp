@@ -32,10 +32,10 @@ namespace erizo {
     sending = true;
     send_Thread_ = boost::thread(&WebRtcConnection::sendLoop, this);
 
-    videoNice_ = new NiceConnection(VIDEO_TYPE, "");
+    videoNice_ = new NiceConnection(VIDEO_TYPE, "",2);
     videoNice_->setWebRtcConnection(this);
 
-    audioNice_ = new NiceConnection(AUDIO_TYPE, "");
+    audioNice_ = new NiceConnection(AUDIO_TYPE, "",2);
     audioNice_->setWebRtcConnection(this);
 
   }
