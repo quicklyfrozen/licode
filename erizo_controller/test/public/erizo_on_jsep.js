@@ -9,8 +9,9 @@ ErizoPeerConnection = function (signalingCallback) {
 			
 			console.log('PeerConnection BOWSER');
 
+			
 			var sdp = offer.substring(4);
-
+			/*
 			var reg5 = new RegExp(/\\r\\n/g);
 			var sdp = sdp.replace(reg5, '\n');
 
@@ -27,6 +28,7 @@ ErizoPeerConnection = function (signalingCallback) {
 
 			var reg4 = new RegExp(/\n/g);
 			var sdp = sdp.replace(reg4, '\\r\\n');
+			*/
 
 			signalingCallback(sdp, offer);
 		});
@@ -41,7 +43,7 @@ ErizoPeerConnection = function (signalingCallback) {
 
 ErizoParseAnswer = function(answer) {
 
-	var newAnswer = {};
+/*	var newAnswer = {};
 
 	var username = answer.match(/(a=ice-ufrag:)(.+?)(\\r\\n)/)[2];
 	var pass = answer.match(/(a=ice-pwd:)(.+?)(\\r\\n)/)[2];
@@ -124,7 +126,7 @@ ErizoParseAnswer = function(answer) {
 //	answer = answer.replace(reg11, 'a=mid:video\\r\\na=fmtp:103 profile-level-id=42C00B;packetization-mode=1\\r\\n');
 
 	//---------------------------------------------
-
+*/
 	answer = 'SDP ' + answer;
 
 	return answer;
