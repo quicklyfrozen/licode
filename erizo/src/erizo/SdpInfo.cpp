@@ -88,18 +88,32 @@ namespace erizo {
               sdp << payload_info.payloadType ;//<<" ";
 
           }
+          int rtcpPort = 0;
+          for( unsigned int secit=0; secit< candidateVector_.size(); secit++){
+            if (candidateVector_[secit].mediaType != AUDIO_TYPE)
+              continue;
+            if (isRtcpMux){
+              rtcpPort = candidateVector_[secit].hostPort;
+              break;
+            }else{
+              if(candidateVector_[secit].componentId == 2){
+                rtcpPort = candidateVector_[secit].hostPort;
+                break;
+              }
+            }
+          }
           sdp << "\n"
             << "c=IN IP4 " << cand.hostAddress
-            << endl << "a=rtcp:" << candidateVector_[3].hostPort
+            << endl << "a=rtcp:" << rtcpPort
             << " IN IP4 " << cand.hostAddress
             << endl;
           printedAudio = true;
         }
 
-        sdp << "a=candidate:" << cand.foundation << " " << cand.componentId
+        sdp << "a=candidate:" << /*cand.foundation*/ "22" << " " << cand.componentId
           << " " << cand.netProtocol << " " << cand.priority << " "
           << cand.hostAddress << " " << cand.hostPort << " typ "
-          << hostType_str << " generation 0" << endl;
+          << hostType_str <<endl;// << " generation 0" << endl;
 
         iceUsername_ = cand.username;
         icePassword_ = cand.password;
@@ -164,8 +178,23 @@ namespace erizo {
               sdp << payload_info.payloadType <<"";
           }
 
+          int rtcpPort = 0;
+          for( unsigned int secit=0; secit< candidateVector_.size(); secit++){
+            if (candidateVector_[secit].mediaType != VIDEO_TYPE)
+              continue;
+            if (isRtcpMux){
+              rtcpPort = candidateVector_[secit].hostPort;
+              break;
+            }else{
+              if(candidateVector_[secit].componentId == 2){
+                rtcpPort = candidateVector_[secit].hostPort;
+                break;
+              }
+            }
+          }
+
           sdp << "\n" << "c=IN IP4 " << cand.hostAddress
-            << endl << "a=rtcp:" << candidateVector_[1].hostPort
+            << endl << "a=rtcp:" << rtcpPort
             << " IN IP4 " << cand.hostAddress
             << endl;
           printedVideo = true;
@@ -174,7 +203,7 @@ namespace erizo {
         sdp << "a=candidate:" << cand.foundation << " " << cand.componentId
           << " " << cand.netProtocol << " " << cand.priority << " "
           << cand.hostAddress << " " << cand.hostPort << " typ "
-          << hostType_str << " generation 0" << endl;
+          << hostType_str <<endl;//<< " generation 0" << endl;
 
         iceUsername_ = cand.username;
         icePassword_ = cand.password;
@@ -203,6 +232,9 @@ namespace erizo {
           sdp << "a=rtpmap:"<<rtp.payloadType << " " << rtp.encodingName << "/"
             << rtp.clockRate <<"\n";
       }
+
+     sdp <<"a=fmtp:103 profile-level-id=42C00B;packetization-mode=1\n"
+     <<"a=rtcp-fb:103 nack pli\n";
 
       sdp << "a=ssrc:" << videoSsrc << " cname:o/i14u9pJrxRKAsu\na=ssrc:"
         << videoSsrc
