@@ -4,3 +4,4 @@ extras/basic_example/node_modules
 extras/basic_example/public/erizo.js
 node_modules/
 site
+.DS_Store
