@@ -68,7 +68,7 @@ Erizo.GetUserMedia = function (config, callback, error) {
     } else if (window.navigator.appCodeName === "Mozilla") {
         // Firefox
         console.log("Firefox");
-        navigator.mozGetUserMedia(config, callback, function(){});
+        navigator.mozGetUserMedia({video: true}, callback, function(){});
         that.browser = "mozilla";
     } else {
         // None.

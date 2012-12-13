@@ -9,9 +9,7 @@ Erizo.FirefoxStack = function (spec) {
         RTCPeerConnection = mozRTCPeerConnection;
 
     that.pc_config = {
-        "iceServers": [{
-            "url": "stun:stun.l.google.com:19302"
-        }]
+        "iceServers": []
     };
 
     that.mediaConstraints = {
@@ -21,7 +19,7 @@ Erizo.FirefoxStack = function (spec) {
         }
     };
 
-    that.peerConnection = new RTCPeerConnection(that.pc_config);
+    that.peerConnection = new RTCPeerConnection();
 
     that.peerConnection.onicecandidate = function (event) {
         console.log("On ice candidate", event);
@@ -68,11 +66,33 @@ Erizo.FirefoxStack = function (spec) {
         } else if (that.state === 'offer-sent') {
             if (msg.messageType === 'ANSWER') {
 
+                var sdp = msg.sdp;
+                sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
+                sdp = sdp.replace(/s=\r\n/g, 's=SIP Call\r\n');
+                sdp = sdp.replace(/a=rtpmap:109 opus\/48000\r\n/g, 'a=rtpmap:109 opus/48000/2\r\na=ptime:20\r\n');
+                sdp = sdp.replace(/a=rtpmap:101 telephone-event\/8000\r\n/g, 'a=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\n');
+                sdp = sdp.replace(/a=mid:.*\r\n/g, '');
+                sdp = sdp.replace(/a=rtcp:.*\r\n/g, '');
+                sdp = sdp.replace(/109 0 8 101/g, '109 101');
+                sdp = sdp.replace(/a=rtpmap:0.*\r\n/g, '');
+                sdp = sdp.replace(/a=rtpmap:8.*\r\n/g, '');
+                sdp = sdp.replace(/ udp /g, ' UDP ');
+                var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/g)[0];
+                var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/g)[0];
+                sdp = sdp.replace(/a=ice-ufrag.*\r\n/g, '');
+                sdp = sdp.replace(/a=ice-pwd.*\r\n/g, '');
+                sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\n'+ufrag+pwd+'a=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
+                //sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\na=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
+                sdp = sdp.replace(/ generation 0/g, '');
+
+
+                sdp += "m=application 52303 SCTP/DTLS 5001\r\nc=IN IP4 81.61.55.239\r\na=sendrecv\r\na=candidate:0 1 UDP 2113667327 192.168.0.14 52303 typ host\r\na=candidate:1 1 UDP 1694302207 81.61.55.239 52303 typ srflx raddr 192.168.0.14 rport 52303\r\na=candidate:0 2 UDP 2113667326 192.168.0.14 49587 typ host\r\na=candidate:1 2 UDP 1694302206 81.61.55.239 49587 typ srflx raddr 192.168.0.14 rport 49587";
+
                 sd = {
-                    sdp: msg.sdp,
+                    sdp: sdp,
                     type: 'answer'
                 };
-                console.log("Setting remote description.", msg.sdp);
+                console.log("Setting remote description.", sdp);
                 that.peerConnection.setRemoteDescription(new mozRTCSessionDescription(sd));
                 that.sendOK();
                 that.state = 'established';
@@ -116,6 +136,7 @@ Erizo.FirefoxStack = function (spec) {
      */
     that.addStream = function (stream) {
         that.peerConnection.addStream(stream);
+        that.state = "new";
         that.markActionNeeded();
     };
 
@@ -179,17 +200,40 @@ Erizo.FirefoxStack = function (spec) {
                 console.log("Creating offer");
                 that.peerConnection.createOffer(function (sessionDescription) {
                     console.log("New Offer! ", sessionDescription);
+                    
+                    var sdp = sessionDescription.sdp;
+                    sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
+                    var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/)[1];
+                    var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/)[1];
+                    ufrag = String.fromCharCode(parseInt(ufrag, 16));
+                    pwd = String.fromCharCode(parseInt(pwd, 16));
+                    var iceufrag = 'a=ice-ufrag:' + ufrag + '\r\n';
+                    var icepwd = 'a=ice-pwd:' + pwd + '\r\n';
+                    console.log("ufrag:",ufrag);
+                    console.log("pwd:",pwd);
+
+                    sdp = sdp.replace(/a=ice-ufrag.*\r\n/g, '');
+                    sdp = sdp.replace(/a=ice-pwd.*\r\n/g, '');
+                    sdp = sdp.replace(/8 101\r\n/g, '8 101\r\n'+iceufrag+icepwd);
+                    sdp = sdp.replace(/SAVPF 120\r\n/g, 'SAVPF 120\r\n'+iceufrag+icepwd);
+                    sessionDescription.sdp = sdp;
                     var newOffer = sessionDescription.sdp;
+
                     that.localDescription = sessionDescription;
 
                     if (newOffer !== that.prevOffer) {
 
-                        //that.peerConnection.setLocalDescription(sessionDescription);
+                        that.peerConnection.setLocalDescription(sessionDescription, function() {
+                            console.log("Ok!");
+                            that.state = 'preparing-offer';
+                            that.moreIceComing = false;
+                            that.markActionNeeded();
+                            console.log("Local description set.");
+                        }, function() {
+                            console.log("Error");
+                        });
                         
-                        that.state = 'preparing-offer';
-                        that.moreIceComing = false;
-                        that.markActionNeeded();
-                        console.log("Local description set.");
+                        
                         return;
                     } else {
                         console.log('Not sending a new offer');
@@ -241,7 +285,7 @@ Erizo.FirefoxStack = function (spec) {
                 that.sendMessage('ANSWER', mySDP);
                 that.state = 'established';
             } else {
-                that.error('Dazed and confused in state ' + that.state + ', stopping here');
+                //that.error('Dazed and confused in state ' + that.state + ', stopping here');
             }
             that.actionNeeded = false;
         }
@@ -315,7 +359,7 @@ Erizo.FirefoxStack = function (spec) {
     // in the 28 January 2012 version of the webrtc specification.
     that.onaddstream = null;
     that.onremovestream = null;
-    that.state = 'new';
+    that.state = 'new1';
     // Auto-fire next events.
     that.markActionNeeded();
     return that;

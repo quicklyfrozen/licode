@@ -120,7 +120,8 @@ Erizo.VideoPlayer = function (spec) {
     that.div.onmouseover = onmouseover;
     that.div.onmouseout = onmouseout;
 
-    that.video.src = that.stream_url;
+    //that.video.src = that.stream_url;
+    that.video.mozSrcObject = that.stream;
 
     return that;
 };
