@@ -1,10 +1,17 @@
 /*global require, __dirname, console*/
-var express = require('express');
-var net = require('net');
-var N = require('./nuve');
-var config = require('./../../lynckia_config');
+var express = require('express'),
+    net = require('net'),
+    N = require('./nuve'),
+    fs = require("fs"),
+    https = require("https"),
+    config = require('./../../lynckia_config');
 
-var app = express.createServer();
+var options = {
+    key: fs.readFileSync('cert/key.pem').toString(),
+    cert: fs.readFileSync('cert/cert.pem').toString()
+};
+
+var app = express();
 
 app.use(express.bodyParser());
 
@@ -23,8 +30,12 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE');
     res.header('Access-Control-Allow-Headers', 'origin, content-type');
-
-    next();
+    if (req.method == 'OPTIONS') {
+        res.send(200);
+    }
+    else {
+        next();
+    }
 });
 
 N.API.init(config.nuve.superserviceID, config.nuve.superserviceKey, 'http://localhost:3000/');
@@ -72,4 +83,7 @@ app.get('/getUsers/:room', function (req, res) {
     });
 });
 
-app.listen(3004);
+app.listen(3001);
+
+var server = https.createServer(options, app);
+server.listen(3004);
