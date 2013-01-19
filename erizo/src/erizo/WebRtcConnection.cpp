@@ -46,7 +46,7 @@ namespace erizo {
   }
 
   bool WebRtcConnection::init() {
-
+    printf("init... localvideoSsrc_ %d\n", localVideoSsrc_);
     videoNice_->start();
     audioNice_->start();
     return true;
@@ -273,14 +273,50 @@ namespace erizo {
     boost::mutex::scoped_lock lock(receiveAudioMutex_);
     int res = -1;
     int length = len;
-    if (audioSrtp_) {
-      audioSrtp_->protectRtp(buf, &length);
-      //		printf("A mandar %d\n", length);
-    }
-    if (len <= 0)
-      return length;
-    if (audioNice_) {
-      res = audioNice_->sendData(buf, length);
+
+    if (bundle_){
+
+      if (videoSrtp_ && videoNice_->iceState == READY) {
+
+        rtcpheader *chead = reinterpret_cast<rtcpheader*> (buf);
+        if (chead->packettype == 200 || chead->packettype == 201) {
+          chead->ssrc=htonl(localAudioSsrc_);
+          if(videoSrtp_->protectRtcp(buf, &length)<0)
+            return length;
+        }else{
+          rtpheader* inHead = reinterpret_cast<rtpheader*> (buf);
+          inHead->ssrc = htonl(localAudioSsrc_);
+          if(videoSrtp_->protectRtp(buf, &length)<0)
+            return length;
+        }
+      }
+      if (length <= 10)
+        return length;
+      if (videoNice_->iceState == READY) {
+        receiveVideoMutex_.lock();
+        if (sendQueue_.size() < 1000) {
+          packet p_;
+          memset(p_.data, 0, length);
+          memcpy(p_.data, buf, length);
+
+          p_.length = length;
+          sendQueue_.push(p_);
+        }
+        receiveVideoMutex_.unlock();
+      }
+    }else{
+
+      rtpheader* inHead = reinterpret_cast<rtpheader*> (buf);
+      inHead->ssrc = htonl(localAudioSsrc_);
+      if (audioSrtp_) {
+        if(audioSrtp_->protectRtp(buf, &length)<0)
+          return length;
+      }
+      if (len <= 0)
+        return length;
+      if (audioNice_) {
+        res = audioNice_->sendData(buf, length);
+      }
     }
     return res;
   }
@@ -289,9 +325,22 @@ namespace erizo {
 
     int res = -1;
     int length = len;
-    if (videoSrtp_ && videoNice_->iceState == READY) {
-      //		printf("protect\n");
-      videoSrtp_->protectRtp(buf, &length);
+
+    rtcpheader *chead = reinterpret_cast<rtcpheader*> (buf);
+    if (chead->packettype == 200 || chead->packettype == 201) {
+      chead->ssrc=htonl(localVideoSsrc_);
+      if (videoSrtp_ && videoNice_->iceState == READY) {
+        if(videoSrtp_->protectRtcp(buf, &length)<0)
+          return length;
+      }
+    }
+    else{
+      rtpheader* inHead = reinterpret_cast<rtpheader*> (buf);
+      inHead->ssrc = htonl(localVideoSsrc_);
+      if (videoSrtp_ && videoNice_->iceState == READY) {
+        if(videoSrtp_->protectRtp(buf, &length)<0)
+          return length;
+      }
     }
     if (length <= 10)
       return length;
@@ -312,37 +361,51 @@ namespace erizo {
 
   int WebRtcConnection::receiveNiceData(char* buf, int len,
       NiceConnection* nice) {
-    //    printf("Receive Nice Data %d, type %d\n", len, nice->mediaType);
     boost::mutex::scoped_lock lock(writeMutex_);
     if (audioReceiver_ == NULL && videoReceiver_ == NULL)
       return 0;
 
     int length = len;
+
+    unsigned int recvSSRC = 0;
+
     if (bundle_) {
-      if (videoSrtp_) {
-        videoSrtp_->unprotectRtp(buf, &length);
+      if (videoSrtp_){
+        rtcpheader *chead = reinterpret_cast<rtcpheader*> (buf);
+        if (chead->packettype == 200) {
+          if (videoSrtp_->unprotectRtcp(buf, &length)<0)
+            return length;
+          recvSSRC = ntohl(chead->ssrc);
+        } else if (chead->packettype == 201){
+          if(videoSrtp_->unprotectRtcp(buf, &length)<0)
+            return length;
+          recvSSRC = ntohl(chead->ssrcsource);
+        } else {
+          if(videoSrtp_->unprotectRtp(buf, &length)<0)
+            return length;
+        }
       }
       if (length <= 0)
         return length;
-      rtpheader* inHead = (rtpheader*) buf;
-      if (inHead->ssrc == htonl(remoteVideoSSRC_)) {
-        inHead->ssrc = htonl(localVideoSsrc_);
+      if (recvSSRC==0){
+        rtpheader* inHead = reinterpret_cast<rtpheader*> (buf);
+        recvSSRC= ntohl(inHead->ssrc);
+      }
+      if (recvSSRC==remoteVideoSSRC_ || recvSSRC==localVideoSsrc_) {
         videoReceiver_->receiveVideoData(buf, length);
-
-      } else if (inHead->ssrc == htonl(remoteAudioSSRC_)) {
-        inHead->ssrc = htonl(localAudioSsrc_);
-        videoReceiver_->receiveVideoData(buf, length); // We send it via the video nice, the only one we have
+      } else if (recvSSRC==remoteAudioSSRC_ || recvSSRC==localAudioSsrc_) {
+        videoReceiver_->receiveAudioData(buf, length);
       } else {
-        printf("Unknown SSRC, ignoring\n");
+        printf("Unknown SSRC %u, localVideo %u, remoteVideo %u, ignoring\n", recvSSRC, localVideoSsrc_, remoteVideoSSRC_);
       }
       return length;
-
     }
 
     if (nice->mediaType == AUDIO_TYPE) {
       if (audioReceiver_ != NULL) {
         if (audioSrtp_) {
-          audioSrtp_->unprotectRtp(buf, &length);
+          if(audioSrtp_->unprotectRtp(buf, &length)<0)
+            return length;
         }
         if (length <= 0)
           return length;
@@ -354,7 +417,8 @@ namespace erizo {
     } else if (nice->mediaType == VIDEO_TYPE) {
       if (videoReceiver_ != NULL) {
         if (videoSrtp_) {
-          videoSrtp_->unprotectRtp(buf, &length);
+          if(videoSrtp_->unprotectRtp(buf, &length)<0)
+            return length;
         }
         if (length <= 0)
           return length;
@@ -400,7 +464,8 @@ namespace erizo {
     rtcpPacket[pos++] = (uint8_t) 0;
     if (videoNice_ != NULL && videoNice_->iceState == READY) {
       if (videoSrtp_!=NULL)
-        videoSrtp_->protectRtcp((char*) rtcpPacket, &pos);
+        if(videoSrtp_->protectRtcp((char*) rtcpPacket, &pos)<0)
+          return pos;
       videoNice_->sendData((char*) rtcpPacket, pos);
     }
     return pos;
