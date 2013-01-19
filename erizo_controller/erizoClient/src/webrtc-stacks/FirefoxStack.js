@@ -67,6 +67,7 @@ Erizo.FirefoxStack = function (spec) {
             if (msg.messageType === 'ANSWER') {
 
                 var sdp = msg.sdp;
+
                 sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                 sdp = sdp.replace(/s=\r\n/g, 's=SIP Call\r\n');
                 sdp = sdp.replace(/a=rtpmap:109 opus\/48000\r\n/g, 'a=rtpmap:109 opus/48000/2\r\na=ptime:20\r\n');
@@ -199,14 +200,14 @@ Erizo.FirefoxStack = function (spec) {
                 // If not, no change is needed.   
                 console.log("Creating offer");
                 that.peerConnection.createOffer(function (sessionDescription) {
-                    console.log("New Offer! ", sessionDescription);
+                    console.log("New Offer! ", sessionDescription.sdp);
                     
                     var sdp = sessionDescription.sdp;
                     sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                     var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/)[1];
                     var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/)[1];
-                    ufrag = String.fromCharCode(parseInt(ufrag, 16));
-                    pwd = String.fromCharCode(parseInt(pwd, 16));
+                    //ufrag = String.fromCharCode(parseInt(ufrag, 16));
+                    //pwd = String.fromCharCode(parseInt(pwd, 16));
                     var iceufrag = 'a=ice-ufrag:' + ufrag + '\r\n';
                     var icepwd = 'a=ice-pwd:' + pwd + '\r\n';
                     console.log("ufrag:",ufrag);
@@ -329,7 +330,7 @@ Erizo.FirefoxStack = function (spec) {
         throw 'Error in RoapOnJsep: ' + text;
     };
 
-    that.sessionId = (RoapConnection.sessionId += 1);
+    that.sessionId = (Erizo.FirefoxStack.sessionId += 1);
     that.sequenceNumber = 0; // Number of last ROAP message sent. Starts at 1.
     that.actionNeeded = false;
     that.iceStarted = false;

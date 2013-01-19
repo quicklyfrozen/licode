@@ -16,19 +16,22 @@ Erizo.Connection = function (spec) {
     if (typeof module !== 'undefined' && module.exports) {
         L.Logger.error('Publish/subscribe video/audio streams not supported in erizofc yet');
         that = Erizo.FcStack(spec);
-    } else if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "23" || 
-               window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "24") {
+    } else if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./) !== null && 
+                (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "23" || 
+                window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "24")) {
         // Google Chrome Stable.
         console.log("Stable!");
         that = Erizo.ChromeStableStack(spec);
         that.browser = "chrome-stable";
-    } else if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "25" ||
-               window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "26") {
+    } else if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./) !== null && 
+                (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "25" ||
+                window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "26")) {
         // Google Chrome Canary.
         console.log("Canary!");
         that = Erizo.ChromeCanaryStack(spec);
         that.browser = "chrome-canary";
-    } else if (window.navigator.appVersion.match(/Bowser\/([\w\W]*?)\./)[1] === "25") {
+    } else if (window.navigator.appVersion.match(/Bowser\/([\w\W]*?)\./) !== null && 
+                (window.navigator.appVersion.match(/Bowser\/([\w\W]*?)\./)[1] === "25")) {
         // Bowser
         that.browser = "bowser";
     } else if (window.navigator.appCodeName === "Mozilla") {
@@ -72,7 +75,7 @@ Erizo.GetUserMedia = function (config, callback, error) {
     } else if (window.navigator.appCodeName === "Mozilla") {
         // Firefox
         console.log("Firefox");
-        navigator.mozGetUserMedia({video: true}, callback, function(){});
+        navigator.mozGetUserMedia({video: true, audio: true}, callback, function(){});
         that.browser = "mozilla";
     } else {
         // None.
