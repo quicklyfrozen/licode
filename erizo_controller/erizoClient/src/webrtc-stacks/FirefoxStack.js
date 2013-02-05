@@ -203,6 +203,7 @@ Erizo.FirefoxStack = function (spec) {
                     console.log("New Offer! ", sessionDescription.sdp);
                     
                     var sdp = sessionDescription.sdp;
+                    var crypto = "a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:BAADBAADBAADBAADBAADBAADBAADBAADBAADBAAD\r\n";
                     sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                     var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/)[1];
                     var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/)[1];
@@ -215,8 +216,10 @@ Erizo.FirefoxStack = function (spec) {
 
                     sdp = sdp.replace(/a=ice-ufrag.*\r\n/g, '');
                     sdp = sdp.replace(/a=ice-pwd.*\r\n/g, '');
-                    sdp = sdp.replace(/8 101\r\n/g, '8 101\r\n'+iceufrag+icepwd);
-                    sdp = sdp.replace(/SAVPF 120\r\n/g, 'SAVPF 120\r\n'+iceufrag+icepwd);
+                    sdp = sdp.replace(/8 101\r\n/g, '8 101\r\n'+iceufrag+icepwd+crypto);
+                    sdp = sdp.replace(/SAVPF 120\r\n/g, 'SAVPF 120\r\n'+iceufrag+icepwd+crypto);
+                    sdp = sdp.replace(/a=fingerprint:sha-256.*\r\n/g, '');
+
                     sessionDescription.sdp = sdp;
                     var newOffer = sessionDescription.sdp;
 
@@ -242,7 +245,7 @@ Erizo.FirefoxStack = function (spec) {
 
                 }, function(error) {
                     console.log("Error creating offer : ", error);
-                });
+                }, {'mandatory': {'MozDontOfferDataChannel':true}});
 
 
             } else if (that.state === 'preparing-offer') {
@@ -360,7 +363,7 @@ Erizo.FirefoxStack = function (spec) {
     // in the 28 January 2012 version of the webrtc specification.
     that.onaddstream = null;
     that.onremovestream = null;
-    that.state = 'new1';
+    that.state = 'new';
     // Auto-fire next events.
     that.markActionNeeded();
     return that;

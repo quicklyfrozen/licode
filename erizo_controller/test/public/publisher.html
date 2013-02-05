@@ -90,9 +90,10 @@ function checkPeerConnection() {
 // Local stream generation
 
 function gotStream(s) {
-  var url = webkitURL.createObjectURL(s);
-  document.getElementById("localView").src = url;
-  trace("User has granted access to local media. url = " + url);
+  //var url = webkitURL.createObjectURL(s);
+  document.getElementById("localView").mozSrcObject = s;
+
+  trace("User has granted access to local media. url = " + s);
   localStream = s;
   signIn();
 }
