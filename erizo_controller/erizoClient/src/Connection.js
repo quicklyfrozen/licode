@@ -36,6 +36,7 @@ Erizo.Connection = function (spec) {
         that.browser = "bowser";
     } else if (window.navigator.appCodeName === "Mozilla") {
         // Firefox
+        console.log("PC Firefox!");
         that = Erizo.FirefoxStack(spec);
         that.browser = "mozilla";
     } else {
@@ -50,11 +51,11 @@ Erizo.Connection = function (spec) {
 Erizo.GetUserMedia = function (config, callback, error) {
     "use strict";
     var that = {};
-    console.log("Searching for browser...");
+    console.log("Searching for browser...", window.navigator.appVersion);
     if (typeof module !== 'undefined' && module.exports) {
         L.Logger.error('Video/audio streams not supported in erizofc yet');
    } else  if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./) !== null) {
-        if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "23") {
+        if (window.navigator.appVersion.match(/Chrome\/([\w\W]*?)\./)[1] === "24") {
             // Google Chrome Stable.
             console.log("Stable!");
             navigator.webkitGetUserMedia(config, callback);

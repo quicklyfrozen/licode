@@ -90,8 +90,11 @@ function checkPeerConnection() {
 // Local stream generation
 
 function gotStream(s) {
+
   //var url = webkitURL.createObjectURL(s);
+  //document.getElementById("localView").src = url;
   document.getElementById("localView").mozSrcObject = s;
+  //document.getElementById("localView").play();
 
   trace("User has granted access to local media. url = " + s);
   localStream = s;
@@ -128,9 +131,14 @@ function createPeerConnection() {
 
       socket.emit('publish', 'offer', offer, function (answer) {
           pc.onsignalingmessage = function (ok) {
-              pc.onsignalingmessage = function() {};
-              socket.emit('publish', 'ok', ok);
+
+            console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOk');
+
+            pc.onsignalingmessage = function() {};
+            socket.emit('publish', 'ok', ok);
           };
+
+          console.log('LLEGA EL ANSWER');
     
           pc.processSignalingMessage(answer);
       });

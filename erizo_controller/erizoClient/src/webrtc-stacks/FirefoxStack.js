@@ -19,6 +19,8 @@ Erizo.FirefoxStack = function (spec) {
         }
     };
 
+    that.roapSessionId = 103;
+
     that.peerConnection = new RTCPeerConnection();
 
     that.peerConnection.onicecandidate = function (event) {
@@ -67,6 +69,9 @@ Erizo.FirefoxStack = function (spec) {
             if (msg.messageType === 'ANSWER') {
 
                 var sdp = msg.sdp;
+
+                sdp = sdp.replace(/a=ice-options.*\r\n/g, '');
+                sdp = sdp.replace(/o=-.*\r\n/g, 'o=Mozilla-SIPUA 22133 0 IN IP4 0.0.0.0\r\n');
 
                 sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                 sdp = sdp.replace(/s=\r\n/g, 's=SIP Call\r\n');
@@ -333,7 +338,7 @@ Erizo.FirefoxStack = function (spec) {
         throw 'Error in RoapOnJsep: ' + text;
     };
 
-    that.sessionId = (Erizo.FirefoxStack.sessionId += 1);
+    that.sessionId = (that.roapSessionId += 1);
     that.sequenceNumber = 0; // Number of last ROAP message sent. Starts at 1.
     that.actionNeeded = false;
     that.iceStarted = false;
