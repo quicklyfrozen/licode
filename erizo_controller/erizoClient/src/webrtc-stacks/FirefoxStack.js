@@ -72,6 +72,8 @@ Erizo.FirefoxStack = function (spec) {
 
                 sdp = sdp.replace(/a=ice-options.*\r\n/g, '');
                 sdp = sdp.replace(/o=-.*\r\n/g, 'o=Mozilla-SIPUA 22133 0 IN IP4 0.0.0.0\r\n');
+                sdp = sdp.replace(/a=crypto.*\r\n/g, '');
+
 
                 sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                 sdp = sdp.replace(/s=\r\n/g, 's=SIP Call\r\n');
@@ -92,7 +94,7 @@ Erizo.FirefoxStack = function (spec) {
                 sdp = sdp.replace(/ generation 0/g, '');
 
 
-                sdp += "m=application 52303 SCTP/DTLS 5001\r\nc=IN IP4 81.61.55.239\r\na=sendrecv\r\na=candidate:0 1 UDP 2113667327 192.168.0.14 52303 typ host\r\na=candidate:1 1 UDP 1694302207 81.61.55.239 52303 typ srflx raddr 192.168.0.14 rport 52303\r\na=candidate:0 2 UDP 2113667326 192.168.0.14 49587 typ host\r\na=candidate:1 2 UDP 1694302206 81.61.55.239 49587 typ srflx raddr 192.168.0.14 rport 49587";
+                //sdp += "m=application 52303 SCTP/DTLS 5001\r\nc=IN IP4 81.61.55.239\r\na=sendrecv\r\na=candidate:0 1 UDP 2113667327 192.168.0.14 52303 typ host\r\na=candidate:1 1 UDP 1694302207 81.61.55.239 52303 typ srflx raddr 192.168.0.14 rport 52303\r\na=candidate:0 2 UDP 2113667326 192.168.0.14 49587 typ host\r\na=candidate:1 2 UDP 1694302206 81.61.55.239 49587 typ srflx raddr 192.168.0.14 rport 49587";
 
                 sd = {
                     sdp: sdp,

@@ -5,6 +5,7 @@
 #include <queue>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
+#include <gnutls/gnutls.h>
 
 #include "SrtpChannel.h"
 #include "SdpInfo.h"
