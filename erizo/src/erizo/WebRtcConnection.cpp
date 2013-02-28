@@ -198,16 +198,16 @@ namespace erizo {
       if (video_) {
         videoNice_->setRemoteCandidates(remoteSdp_.getCandidateInfos());
         if(videoSrtp_!=NULL){
-          videoSrtp_->setRtpParams((char*) cryptLocal_video.keyParams.c_str(),
-              (char*) cryptRemote_video.keyParams.c_str());
+          //videoSrtp_->setRtpParams((char*) cryptLocal_video.keyParams.c_str(),
+          //    (char*) cryptRemote_video.keyParams.c_str());
         }
 
       }
       if (audio_) {
         audioNice_->setRemoteCandidates(remoteSdp_.getCandidateInfos());
         if (audioSrtp_!=NULL){
-          audioSrtp_->setRtpParams((char*) cryptLocal_audio.keyParams.c_str(),
-              (char*) cryptRemote_audio.keyParams.c_str());
+          //audioSrtp_->setRtpParams((char*) cryptLocal_audio.keyParams.c_str(),
+          //    (char*) cryptRemote_audio.keyParams.c_str());
         }
       }
     } else {

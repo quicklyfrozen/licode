@@ -71,26 +71,27 @@ Erizo.FirefoxStack = function (spec) {
                 var sdp = msg.sdp;
 
                 sdp = sdp.replace(/a=ice-options.*\r\n/g, '');
-                sdp = sdp.replace(/o=-.*\r\n/g, 'o=Mozilla-SIPUA 22133 0 IN IP4 0.0.0.0\r\n');
+                //sdp = sdp.replace(/o=-.*\r\n/g, 'o=Mozilla-SIPUA 22133 0 IN IP4 0.0.0.0\r\n');
                 sdp = sdp.replace(/a=crypto.*\r\n/g, '');
 
 
                 sdp = sdp.replace(/a=ssrc.*\r\n/g, '');
                 sdp = sdp.replace(/s=\r\n/g, 's=SIP Call\r\n');
-                sdp = sdp.replace(/a=rtpmap:109 opus\/48000\r\n/g, 'a=rtpmap:109 opus/48000/2\r\na=ptime:20\r\n');
-                sdp = sdp.replace(/a=rtpmap:101 telephone-event\/8000\r\n/g, 'a=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\n');
+                sdp = sdp.replace(/a=rtpmap:109 opus\/48000\r\n/g, 'a=rtpmap:109 opus/48000\r\na=ptime:20\r\n');
+                //sdp = sdp.replace(/a=rtpmap:101 telephone-event\/8000\r\n/g, 'a=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\n');
                 sdp = sdp.replace(/a=mid:.*\r\n/g, '');
                 sdp = sdp.replace(/a=rtcp:.*\r\n/g, '');
                 sdp = sdp.replace(/109 0 8 101/g, '109 101');
                 sdp = sdp.replace(/a=rtpmap:0.*\r\n/g, '');
                 sdp = sdp.replace(/a=rtpmap:8.*\r\n/g, '');
                 sdp = sdp.replace(/ udp /g, ' UDP ');
-                var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/g)[0];
-                var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/g)[0];
-                sdp = sdp.replace(/a=ice-ufrag.*\r\n/g, '');
-                sdp = sdp.replace(/a=ice-pwd.*\r\n/g, '');
-                sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\n'+ufrag+pwd+'a=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
-                //sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\na=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
+                //var ufrag = sdp.match(/a=ice-ufrag:(.*)\r\n/g)[0];
+                //var pwd = sdp.match(/a=ice-pwd:(.*)\r\n/g)[0];
+                //sdp = sdp.replace(/a=ice-ufrag.*\r\n/g, '');
+                //sdp = sdp.replace(/a=ice-pwd.*\r\n/g, '');
+                //sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\n'+ufrag+pwd+'a=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
+                sdp = sdp.replace(/t=0 0\r\n/g, 't=0 0\r\na=fingerprint:sha-256 57:10:1A:CF:95:65:5A:BF:2B:27:E0:5B:D8:EF:D8:9F:AE:A8:A5:A1:0B:C6:DC:3C:46:E6:3E:B6:CB:DC:20:46\r\n');
+                
                 sdp = sdp.replace(/ generation 0/g, '');
 
 

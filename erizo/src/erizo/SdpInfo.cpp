@@ -368,7 +368,15 @@ namespace erizo {
     cand.foundation = pieces[0];
     cand.componentId = (unsigned int) strtoul(pieces[1], NULL, 10);
 
-    cand.netProtocol = pieces[2];
+    std::string st(pieces[2]);
+
+    const int length = st.length();
+    for(int i=0; i < length; ++i)
+    {
+      st[i] = std::tolower(st[i]);
+    }
+
+    cand.netProtocol = st;
     // libnice does not support tcp candidates, we ignore them
     if (cand.netProtocol.compare("udp")) {
       return false;

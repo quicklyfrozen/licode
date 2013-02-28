@@ -112,9 +112,24 @@ void cb_candidate_gathering_done(NiceAgent *agent, guint stream_id,
 			cand_info.netProtocol = "udp";
 			cand_info.transProtocol = std::string(*conn->transportName);
 			//cand_info.username = std::string(cand->username);
+
+
+			// if (cand->username)
+			// 	cand_info.username = std::string(cand->username);
+			// else
+			// 	cand_info.username = std::string("(null)");
+
+			// if (cand->password)
+			// 	cand_info.password = std::string(cand->password);
+			// else
+			// 	cand_info.password = std::string("(null)");
+
+
 			cand_info.username = std::string(ufrag);
 
 			cand_info.password = std::string(upass);
+
+			printf("CAAAAAAAAAAAAAAAAAAAAAAAAND LOC %s y %s\n", cand_info.username.c_str(), cand_info.password.c_str());
 
 			conn->localCandidates->push_back(cand_info);
 		}
@@ -222,7 +237,8 @@ void NiceConnection::init() {
 	//nice_debug_enable( TRUE );
 	// Create a nice agent
 	agent_ = nice_agent_new(g_main_loop_get_context(loop_),
-		 NICE_COMPATIBILITY_RFC5245);
+		NICE_COMPATIBILITY_RFC5245);
+		//NICE_COMPATIBILITY_GOOGLE);
 
 	g_object_set (G_OBJECT (agent_), "controlling-mode", FALSE, NULL);
 
@@ -298,6 +314,8 @@ bool NiceConnection::setRemoteCandidates(
 		thecandidate->addr = *naddr;
 		sprintf(thecandidate->foundation, "%s", cinfo.foundation.c_str());
 
+		printf("*************** %s y %s\n", cinfo.username.c_str(), cinfo.password.c_str());
+
 		thecandidate->username = strdup(cinfo.username.c_str());
 		thecandidate->password = strdup(cinfo.password.c_str());
 		thecandidate->stream_id = (guint) 1;
@@ -310,7 +328,7 @@ bool NiceConnection::setRemoteCandidates(
 
 	nice_agent_set_remote_candidates(agent_, (guint) 1, 1, candList);
 
-	printf("Candidates SET\n");
+	printf("Candidates SET\n %d", candidates.size());
 	this->updateIceState(CANDIDATES_RECEIVED);
 	return true;
 }
