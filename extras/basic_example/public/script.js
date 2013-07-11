@@ -81,7 +81,7 @@ window.onload = function () {
 
             room.connect();
 
-            localStream.show("myVideo");
+            localStream.show("myVideo", {muted: true});
 
         });
         localStream.init();
