@@ -64,7 +64,7 @@ Erizo.VideoPlayer = function (spec) {
     that.video.setAttribute('id', 'stream' + that.id);
     that.video.setAttribute('style', 'width: 100%; height: 100%; position: absolute');
     that.video.setAttribute('autoplay', 'autoplay');
-    if (spec.options.muted) {
+    if (spec.options && spec.options.muted) {
 		that.video.setAttribute('muted', 'muted');
 	}
 
