@@ -39,8 +39,9 @@ install_libnice(){
 }
 
 
-pause "Installing homebrew... [press Enter]"
-install_homebrew
+# pause "Installing homebrew... [press Enter]"
+# install_homebrew
+pause "Assuming homebrew is installed... [press Enter]"
 pause "Installing deps via homebrew... [press Enter]"
 install_brew_deps
 pause 'Installing libnice... [press Enter]'

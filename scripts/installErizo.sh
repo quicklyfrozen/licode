@@ -7,6 +7,12 @@ ROOT=$PATHNAME/..
 BUILD_DIR=$ROOT/build
 CURRENT_DIR=`pwd`
 
+SUDO="sudo"
+OS=${OSTYPE//[0-9.]/}
+#if [[ "$OS" == "darwin" ]]; then
+#	SUDO=""
+#fi
+
 pause() {
   read -p "$*"
 }
@@ -14,8 +20,8 @@ install_libsrtp(){
   cd $ROOT/third_party/srtp
   CFLAGS="-fPIC" ./configure
   make
-  sudo make uninstall
-  sudo make install
+  $SUDO make uninstall
+  $SUDO make install
   cd $CURRENT_DIR
 }
 

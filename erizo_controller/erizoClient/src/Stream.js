@@ -59,6 +59,9 @@ Erizo.Stream = function (spec) {
             if (spec.audio || spec.video) {
                 L.Logger.debug("Requested access to local media");
                 var opt = {video: spec.video, audio: spec.audio};
+                if (spec.size) {
+                    opt.video = { mandatory: { maxWidth: spec.size.width, maxHeight: spec.size.height }};
+                }
                 if (spec.screen) {
                     opt = {video:{mandatory: {chromeMediaSource: 'screen'}}};
                 }
