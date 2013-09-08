@@ -106,6 +106,9 @@ var addToCloudHandler = function (callback) {
                     console.log('I don`t exist in cloudHandler. I`m going to be killed');
                     clearInterval(intervarId);
                     rpc.callRpc('nuve', 'killMe', publicIP, function () {});
+
+                    // Exit so we can be restarted (TODO: something less drastic)
+                    process.exit(1);
                 }
             });
 
