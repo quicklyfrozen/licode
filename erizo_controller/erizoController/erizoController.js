@@ -85,6 +85,9 @@ var addToCloudHandler = function (callback) {
     publicIP = addresses[0];
     privateRegexp = new RegExp(publicIP, 'g');
 
+    if (config.erizo.publicIP)
+        publicIP = config.erizo.publicIP;
+
     rpc.callRpc('nuve', 'addNewErizoController', {cloudProvider: config.cloudProvider.name, ip: publicIP}, function (msg) {
 
         if (msg === 'timeout') {
@@ -243,7 +246,7 @@ var listen = function () {
             var id, st;
             if (options.state !== 'data') {
                 if (options.state === 'offer' && socket.state === 'sleeping') {
-                    id = Math.random() * 100000000000000000;
+                    id = Math.floor(Math.random() * 100000000000000000);
                     socket.room.webRtcController.addPublisher(id, sdp, function (answer) {
                         socket.state = 'waitingOk';
                         answer = answer.replace(privateRegexp, publicIP);
@@ -258,7 +261,7 @@ var listen = function () {
                     sendMsgToRoom(socket.room, 'onAddStream', st.getPublicStream());
                 }
             } else {
-                id = Math.random() * 100000000000000000;
+                id = Math.floor(Math.random() * 100000000000000000);
                 st = new ST.Stream({id: id, audio: options.audio, video: options.video, data: options.data, screen: options.screen, attributes: options.attributes});
                 socket.streams.push(id);
                 socket.room.streams[id] = st;

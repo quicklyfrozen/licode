@@ -7,25 +7,9 @@ DB_DIR="$BUILD_DIR"/db
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOT/erizo/build/erizo:$ROOT/erizo
 export ERIZO_HOME=$ROOT/erizo/
 
-#mongod --dbpath $DB_DIR > $BUILD_DIR/mongo.log &
-#sleep 5
-
-#(
-#cd ./nuve/nuveAPI
-#node nuve.js >nuve.log 2>&1 &
-#)
-
-#sleep 1
-
 (
 cd ./erizo_controller/erizoController
-node erizoController.js >erizo.log 2>&1 &
+#node erizoController.js >erizo.log 2>&1 &
+forever start -a -l forever.log -o erizo.log -e erizo-err.log erizoController.js
 )
-
-#sleep 1
-
-#(
-#cd ./party
-#node basicServer.js >basic.log 2>&1 &
-#)
 
