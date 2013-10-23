@@ -6,6 +6,8 @@ PATHNAME=`dirname $SCRIPT`
 ROOT=$PATHNAME/..
 BUILD_DIR=$ROOT/build
 CURRENT_DIR=`pwd`
+LIB_DIR=$BUILD_DIR/libdeps
+PREFIX_DIR=$LIB_DIR/build/
 
 SUDO="sudo"
 OS=${OSTYPE//[0-9.]/}
@@ -15,14 +17,6 @@ OS=${OSTYPE//[0-9.]/}
 
 pause() {
   read -p "$*"
-}
-install_libsrtp(){
-  cd $ROOT/third_party/srtp
-  CFLAGS="-fPIC" ./configure
-  make
-  $SUDO make uninstall
-  $SUDO make install
-  cd $CURRENT_DIR
 }
 
 install_erizo(){
@@ -45,8 +39,6 @@ install_erizo_controller(){
   cd $CURRENT_DIR
 }
 
-echo 'Installing libsrtp...'
-install_libsrtp
 echo 'Installing erizo...'
 install_erizo
 echo 'Installing erizoAPI...'

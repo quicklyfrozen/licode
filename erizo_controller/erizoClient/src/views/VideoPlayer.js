@@ -46,7 +46,8 @@ Erizo.VideoPlayer = function (spec) {
     });*/
 
     L.Logger.debug('Creating URL from stream ' + that.stream);
-    that.stream_url = webkitURL.createObjectURL(that.stream);
+    var myURL = window.URL || webkitURL;
+    that.stream_url = myURL.createObjectURL(that.stream);
 
     // Container
     that.div = document.createElement('div');
@@ -67,6 +68,11 @@ Erizo.VideoPlayer = function (spec) {
     if (spec.options && spec.options.muted) {
 		that.video.setAttribute('muted', 'muted');
 	}
+    if(spec.stream.local)
+        that.video.volume = 0;
+
+    if(spec.stream.local) 
+        that.video.volume = 0;
 
     if (that.elementID !== undefined) {
         document.getElementById(that.elementID).appendChild(that.div);
@@ -90,7 +96,6 @@ Erizo.VideoPlayer = function (spec) {
             height = that.container.offsetHeight;
 
         if (!spec.stream.screen) {
-
             if (width !== that.containerWidth || height !== that.containerHeight) {
 
                 if (width * (3 / 4) > height) {
