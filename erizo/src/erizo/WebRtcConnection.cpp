@@ -113,7 +113,7 @@ namespace erizo {
     this->setAudioSourceSSRC(remoteSdp_.audioSsrc);
 
     if (remoteSdp_.profile == SAVPF) {
-      if (remoteSdp_.isFingerprint) {
+      if (false && remoteSdp_.isFingerprint) {
         // DTLS-SRTP
         if (remoteSdp_.hasVideo) {
           videoTransport_ = new DtlsTransport(VIDEO_TYPE, "", bundle_, remoteSdp_.isRtcpMux, this, stunServer_, stunPort_, minPort_, maxPort_);

@@ -62,7 +62,7 @@ namespace erizo {
     red.channels = 1;
     red.mediaType = VIDEO_TYPE;
     internalPayloadVector_.push_back(red);
-
+*/
     RtpMap opus;
     opus.payloadType = OPUS_48000_PT;
     opus.encodingName = "opus";
@@ -71,7 +71,7 @@ namespace erizo {
     opus.mediaType = AUDIO_TYPE;
     internalPayloadVector_.push_back(opus);
 
-    RtpMap isac16;
+/*    RtpMap isac16;
     isac16.payloadType = ISAC_16000_PT;
     isac16.encodingName = "ISAC";
     isac16.clockRate = 16000;
