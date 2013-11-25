@@ -12,7 +12,7 @@ Erizo.Speaker = function (spec) {
         show,
         mute,
         unmute,
-        lastVolume = 100,
+        lastVolume = 80,
         muted = false;
 
     // Variables

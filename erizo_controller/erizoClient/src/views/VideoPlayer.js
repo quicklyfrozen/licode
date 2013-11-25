@@ -25,11 +25,13 @@ Erizo.VideoPlayer = function (spec) {
 
     // Private functions
     onmouseover = function (evt) {
-        that.bar.display();
+        if (spec.options.bar !== false)
+            that.bar.display();
     };
 
     onmouseout = function (evt) {
-        that.bar.hide();
+        if (spec.options.bar !== false)
+            that.bar.hide();
     };
 
     // Public functions
@@ -53,6 +55,9 @@ Erizo.VideoPlayer = function (spec) {
     that.div = document.createElement('div');
     that.div.setAttribute('id', 'player_' + that.id);
     that.div.setAttribute('style', 'width: 100%; height: 100%; position: relative; background-color: black; overflow: hidden;');
+    if (spec.options.className) {
+        that.div.setAttribute('class', spec.options.className);
+    }
 
     // Loader icon
     that.loader = document.createElement('img');
@@ -145,7 +150,9 @@ Erizo.VideoPlayer = function (spec) {
 
 
     // Bottom Bar
-    that.bar = new Erizo.Bar({elementID: 'player_' + that.id, id: that.id, stream: spec.stream, video: that.video, options: spec.options});
+    if (spec.options.bar !== false) {
+        that.bar = new Erizo.Bar({elementID: 'player_' + that.id, id: that.id, stream: spec.stream, video: that.video, options: spec.options});
+    }
 
     that.div.onmouseover = onmouseover;
     that.div.onmouseout = onmouseout;
