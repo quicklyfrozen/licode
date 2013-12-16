@@ -7,6 +7,9 @@ DB_DIR="$BUILD_DIR"/db
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOT/erizo/build/erizo:$ROOT/erizo
 export ERIZO_HOME=$ROOT/erizo/
 
+ulimit -n 1024
+ulimit -c unlimited
+
 (
 cd ./erizo_controller/erizoController
 #node erizoController.js >erizo.log 2>&1 &
