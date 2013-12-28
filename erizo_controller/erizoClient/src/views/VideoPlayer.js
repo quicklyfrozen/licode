@@ -151,7 +151,7 @@ Erizo.VideoPlayer = function (spec) {
 
     // Bottom Bar
     if (spec.options.bar !== false) {
-        that.bar = new Erizo.Bar({elementID: 'player_' + that.id, id: that.id, stream: spec.stream, video: that.video, options: spec.options});
+        that.bar = new Erizo.Bar({elementID: 'player_' + that.id, id: that.id, stream: spec.stream, media: that.video, options: spec.options});
     }
 
     that.div.onmouseover = onmouseover;

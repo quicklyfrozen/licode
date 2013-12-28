@@ -8,6 +8,7 @@ Erizo.Stream = function (spec) {
     "use strict";
     var that = Erizo.EventDispatcher(spec),
         getFrame;
+
     that.stream = spec.stream;
     that.url = spec.url;
     that.room = undefined;
@@ -16,6 +17,10 @@ Erizo.Stream = function (spec) {
     that.video = spec.video;
     that.audio = spec.audio;
     that.screen = spec.screen;
+    that.videoSize = spec.videoSize;
+    if (that.videoSize !== undefined && (!(that.videoSize instanceof Array) || that.videoSize.length != 4)) {
+        throw Error("Invalid Video Size");
+    }
     if (spec.local === undefined || spec.local === true) {
         that.local = true;
     }
@@ -61,13 +66,19 @@ Erizo.Stream = function (spec) {
         try {
             if ((spec.audio || spec.video || spec.screen) && spec.url === undefined) {
                 L.Logger.debug("Requested access to local media");
-                var opt = {video: spec.video, audio: spec.audio};
+
+                var videoOpt = spec.video;
                 if (spec.size) {
-                    opt.video = { mandatory: { maxWidth: spec.size.width, maxHeight: spec.size.height }};
+                    videoOpt = { mandatory: { maxWidth: spec.size.width, maxHeight: spec.size.height }};
                 }
+                else if (videoOpt == true && that.videoSize !== undefined) {
+                    videoOpt = {mandatory: {minWidth: that.videoSize[0], minHeight: that.videoSize[1], maxWidth: that.videoSize[2], maxHeight: that.videoSize[3]}};
+                }
+                var opt = {video: videoOpt, audio: spec.audio, fake: spec.fake};
                 if (spec.screen) {
-                    opt = {video:{mandatory: {chromeMediaSource: 'screen'}}};
+                    opt = {video: {mandatory: {chromeMediaSource: 'screen', maxWidth: screen.availWidth, maxHeight: screen.availHeight}}};
                 }
+                L.Logger.debug(opt);
                 Erizo.GetUserMedia(opt, function (stream) {
                 //navigator.webkitGetUserMedia("audio, video", function (stream) {
 
@@ -87,7 +98,7 @@ Erizo.Stream = function (spec) {
                 that.dispatchEvent(streamEvent);
             }
         } catch (e) {
-            L.Logger.error("Error accessing to local media");
+            L.Logger.error("Error accessing to local media", e);
         }
     };
 
@@ -105,7 +116,7 @@ Erizo.Stream = function (spec) {
         }
     };
 
-    that.show = function (elementID, options) {
+    that.play = function (elementID, options) {
         that.elementID = elementID;
         if (that.hasVideo() || this.hasScreen()) {
             // Draw on HTML
@@ -114,10 +125,14 @@ Erizo.Stream = function (spec) {
                 that.player = player;
                 that.showing = true;
             }
+        } else if (that.hasAudio) {
+            var player = new Erizo.AudioPlayer({id: that.getID(), stream: that, elementID: elementID, options: options});
+            that.player = player;
+            that.showing = true;
         }
     };
 
-    that.hide = function () {
+    that.stop = function () {
         if (that.showing) {
             if (that.player !== undefined) {
                 that.player.destroy();
@@ -125,6 +140,9 @@ Erizo.Stream = function (spec) {
             }
         }
     };
+
+    that.show = that.play;
+    that.hide = that.stop;
 
     getFrame = function () {
         if (that.player !== undefined && that.stream !== undefined) {
