@@ -28,7 +28,7 @@ exports.connect = function(callback) {
 	connection.on('ready', function () {
 
 		//Create a direct exchange
-		exc = connection.exchange('rpcExchange', {type: 'direct'}, function (exchange) {
+		exc = connection.exchange('rpcExchange', {type: 'direct', autoDelete: false}, function (exchange) {
 			logger.info('Exchange ' + exchange.name + ' is open');
 
 			//Create the queue for send messages
