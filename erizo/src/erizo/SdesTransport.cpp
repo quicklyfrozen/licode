@@ -125,7 +125,8 @@ void SdesTransport::write(char* data, int len) {
         return;
       }
       if (nice_->iceState == NICE_READY) {
-          getTransportListener()->queueData(comp, protectBuf_, length, this);
+          //getTransportListener()->queueData(comp, protectBuf_, length, this);
+          this->writeOnNice(comp, protectBuf_, length);
       }
     }
 }
