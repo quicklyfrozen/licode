@@ -1,0 +1,42 @@
+diff -ur libnice-0.1.4.orig/agent/conncheck.c libnice-0.1.4/agent/conncheck.c
+--- libnice-0.1.4.orig/agent/conncheck.c	2013-01-09 16:35:25.000000000 -0500
++++ libnice-0.1.4/agent/conncheck.c	2014-01-11 01:10:32.501203902 -0500
+@@ -2943,6 +2943,10 @@
+       if (component->remote_candidates && remote_candidate == NULL) {
+ 	nice_debug ("Agent %p : No matching remote candidate for incoming check ->"
+             "peer-reflexive candidate.", agent);
++
++            // KL: Don't discover candidates 
++            return false;
++            
+ 	remote_candidate = discovery_learn_remote_peer_reflexive_candidate (
+             agent, stream, component, priority, from, socket,
+             local_candidate,
+diff -ur libnice-0.1.4.orig/agent/debug.c libnice-0.1.4/agent/debug.c
+--- libnice-0.1.4.orig/agent/debug.c	2011-02-01 23:50:08.000000000 -0500
++++ libnice-0.1.4/agent/debug.c	2014-01-10 23:35:58.622343250 -0500
+@@ -37,6 +37,8 @@
+ #ifdef HAVE_CONFIG_H
+ # include <config.h>
+ #endif
++#include <stdlib.h>
++#include <stdio.h>
+ 
+ #include "debug.h"
+ 
+@@ -108,10 +110,14 @@
+ 
+ void nice_debug (const char *fmt, ...)
+ {
++  char fmta[2048];
++  sprintf(fmta, "%s\n", fmt);
++  
+   va_list ap;
+   if (debug_enabled) {
+     va_start (ap, fmt);
+-    g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, fmt, ap);
++    //g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, fmt, ap);
++    vfprintf (stderr, fmta, ap);
+     va_end (ap);
+   }
+ }
