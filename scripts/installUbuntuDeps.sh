@@ -56,6 +56,7 @@ install_libnice(){
     curl -O http://nice.freedesktop.org/releases/libnice-0.1.4.tar.gz
     tar -zxvf libnice-0.1.4.tar.gz
     cd libnice-0.1.4
+	patch -p1 <$CURRENT_DIR/libnice.patch
     ./configure --prefix=$PREFIX_DIR
     make -s V=0
     make install
