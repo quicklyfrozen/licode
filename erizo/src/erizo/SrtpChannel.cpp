@@ -29,6 +29,7 @@ SrtpChannel::SrtpChannel() {
 
 SrtpChannel::~SrtpChannel() {
   active_ = false;
+  ELOG_DEBUG("Deallocating SRTP sessions");
   if (send_session_ != NULL) {
     srtp_dealloc(send_session_);
   }
@@ -85,6 +86,8 @@ int SrtpChannel::unprotectRtp(char* buffer, int *len) {
 
 int SrtpChannel::protectRtcp(char* buffer, int *len) {
 
+    if (!active_)
+        return 0;
     int val = srtp_protect_rtcp(send_session_, (char*) buffer, len);
     if (val == 0) {
         return 0;
@@ -97,6 +100,8 @@ int SrtpChannel::protectRtcp(char* buffer, int *len) {
 
 int SrtpChannel::unprotectRtcp(char* buffer, int *len) {
 
+    if (!active_)
+        return 0;
     int val = srtp_unprotect_rtcp(receive_session_, buffer, len);
     if (val == 0) {
         return 0;
